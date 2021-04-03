@@ -6,7 +6,7 @@ dotenv.config();
 
 const Users = db.users;
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     const { name, pass, cpf, email, cell, birthDate } = req.body;
     const validateUser = await Users.findOne({ email });
@@ -22,8 +22,9 @@ const createUser = async (req, res) => {
         birthDate
       })
 
-      await user.save();
-      res.send({ message: "User created successfully!" })
+      req.resUser = await user.save();
+      next();
+      // res.send({ message: "User created successfully!" })
     }
   } catch (e) {
     res.status(500).send({ message: "Some error occurred while creating the user!\n" + e + "\nTry again." });

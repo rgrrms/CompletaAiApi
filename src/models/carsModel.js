@@ -11,6 +11,10 @@ export default (mongoose) => {
     color: {
       type: String,
       required: true
+    },
+    idUser: {
+      type: String,
+      required: true
     }
   });
 
