@@ -18,9 +18,12 @@ export default (mongoose) => {
     },
     complement: {
       type: String,
-      required: true
     },
     zipCode: {
+      type: String,
+      required: true
+    },
+    idUser: {
       type: String,
       required: true
     }

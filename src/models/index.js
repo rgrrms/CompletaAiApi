@@ -4,6 +4,7 @@ import adminModel from "./adminModel";
 import carsModel from "./carsModel";
 import addressModel from "./addressModel";
 import dotenv from 'dotenv-safe';
+import orderModel from "./orderModel";
 dotenv.config()
 
 const db = {};
@@ -14,5 +15,6 @@ db.admin = adminModel(mongoose);
 db.users = usersModel(mongoose);
 db.cars = carsModel(mongoose);
 db.address = addressModel(mongoose);
+db.order = orderModel(mongoose);
 
 export default db;

@@ -24,10 +24,21 @@ const createUser = async (req, res, next) => {
 
       req.resUser = await user.save();
       next();
+      const getToken = await createToken(user);
+      return res.json({ auth: true, token: 'Bearer ' + getToken, userId: user._id });
       // res.send({ message: "User created successfully!" })
     }
   } catch (e) {
     res.status(500).send({ message: "Some error occurred while creating the user!\n" + e + "\nTry again." });
+  }
+}
+
+const listAllUsers = async (req, res) => {
+  try {
+    const allUsers = await Users.find();
+    res.status(200).send(allUsers);
+  }catch (e) {
+    res.status(500).send({ message: "some error occurred while fetching the customer list!" + e })
   }
 }
 
@@ -38,9 +49,8 @@ const login = async (req, res) => {
     const user = await Users.findOne({ email });
     if (user) {
       if (bcrypt.compareSync(pass, user.pass)) {
-        const emailToken = user.email;
-        const token = jwt.sign({ emailToken }, process.env.SECRET_TOKEN, { expiresIn: 3600 });
-        return res.json({ auth: true, token: 'Bearer ' + token });
+        const getToken = await createToken(user);
+        return res.json({ auth: true, token: 'Bearer ' + getToken, userId: user._id });
       } else {
         res.status(401).send({ message: "Incorrect password!" });
       }
@@ -50,6 +60,13 @@ const login = async (req, res) => {
   } catch (e) {
     res.status(500).send({ message: "Error signing in! " + e });
   }
+}
+
+const createToken = async (user) => {
+  const emailToken = user.email;
+  const idUserToken = user._id;
+  const token = jwt.sign({ emailToken, idUserToken }, process.env.SECRET_TOKEN, { expiresIn: 3600 });
+  return token;
 }
 
 const logout = async (req, res) => {
@@ -65,16 +82,18 @@ function encryptPass(pass) {
 const verifyJWT = async (req, res, next) => {
   const token = req.headers['x-access-token'];
   console.log(token);
-  if (!token) return res.status(401).json({ auth: false, message: 'No token provided' });
-  if (token.split(' ', 1) !== 'Bearer') return res.status(401).json({ auth: false, message: 'Invalid token' });
+  console.log(token.split(' ', 1).toString());
+  if (!token) return res.status(401).json({auth: false, message: 'No token provided'});
+  if (token.split(' ', 1).toString() !== 'Bearer') return res.status(401).json({ auth: false, message: 'Invalid token' });
 
-  jwt.verify(token, process.env.SECRET_TOKEN, function(err, decoded) {
-    if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+  jwt.verify(token.split(' ')[1], process.env.SECRET_TOKEN, function(err, decoded) {
+    if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' + err });
 
     // se tudo estiver ok, salva no request para uso posterior
     req.userEmail = decoded.emailToken;
+    req.userId = decoded.idUserToken;
     next();
   });
 };
 
-export default { createUser, login, logout, verifyJWT };
+export default { createUser, listAllUsers, login, logout, verifyJWT };
