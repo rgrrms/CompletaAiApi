@@ -33,9 +33,19 @@ const createUser = async (req, res, next) => {
   }
 }
 
+const deleteUser = async (req, res) => {
+  try {
+    const deleted = await Users.findByIdAndDelete(req.params);
+    console.log(deleted);
+    res.status(200).send({ message: "User " + deleted.name + " successfully deleted!" });
+  } catch (e) {
+    res.status(500).send({ message: "some error occurred while deleting a customer!" + e })
+  }
+}
+
 const listAllUsers = async (req, res) => {
   try {
-    const allUsers = await Users.find();
+    let allUsers = await Users.find().select('_id name  cpf  email cell');
     res.status(200).send(allUsers);
   }catch (e) {
     res.status(500).send({ message: "some error occurred while fetching the customer list!" + e })
@@ -87,7 +97,7 @@ const verifyJWT = async (req, res, next) => {
   if (token.split(' ', 1).toString() !== 'Bearer') return res.status(401).json({ auth: false, message: 'Invalid token' });
 
   jwt.verify(token.split(' ')[1], process.env.SECRET_TOKEN, function(err, decoded) {
-    if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' + err });
+    if (err) return res.status(401).json({ auth: false, message: 'Failed to authenticate token.' + err });
 
     // se tudo estiver ok, salva no request para uso posterior
     req.userEmail = decoded.emailToken;
@@ -96,4 +106,4 @@ const verifyJWT = async (req, res, next) => {
   });
 };
 
-export default { createUser, listAllUsers, login, logout, verifyJWT };
+export default { createUser, listAllUsers, login, logout, verifyJWT, deleteUser };

@@ -67,10 +67,10 @@ const verifyJWTAdmin = async (req, res, next) => {
   const token = req.headers['x-access-token'];
   console.log(token);
   if (!token) return res.status(401).json({ auth: false, message: 'No token provided' });
-  if (token.split(' ', 1) !== 'Bearer') return res.status(401).json({ auth: false, message: 'Invalid token' });
+  if (token.split(' ', 1).toString() !== 'Bearer') return res.status(401).json({ auth: false, message: 'Invalid token' });
 
-  jwt.verify(token, process.env.SECRET_ADMIN_TOKEN, function(err, decoded) {
-    if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+  jwt.verify(token.split(' ')[1], process.env.SECRET_ADMIN_TOKEN, function(err, decoded) {
+    if (err) return res.status(401).json({ auth: false, message: 'Failed to authenticate token.' + err });
 
     // se tudo estiver ok, salva no request para uso posterior
     req.adminEmail = decoded.emailToken;

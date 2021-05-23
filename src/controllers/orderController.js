@@ -3,12 +3,10 @@ import dotenv from 'dotenv-safe';
 dotenv.config();
 
 const Order = db.order;
-const Car = db.cars;
-const Address = db.address;
 
 const createOrder = async (req, res, next) => {
   try {
-    const { service, fuelType, amountFuel, idCar} = req.body;
+    const { service, fuelType, amountFuel, car, address} = req.body;
     const order = new Order({
       service,
       fuelType,//tipo de combustivel
@@ -17,7 +15,8 @@ const createOrder = async (req, res, next) => {
       paymentAccept: false,
       status: "Aguardando Pagamento",
       idUser: req.userId,
-      idCar
+      car,
+      address
     });
 
     await order.save();
@@ -31,12 +30,30 @@ const listOrderByUser = async (req, res) => {
   try {
     console.log(req.userId);
     const allOrdersByUser = await Order.find({idUser: req.userId});
-    console.log(allOrdersByUser);
-    const car = await Car.find({idUser: req.userId});
-    const address = await Address.find({idUser: req.userId});
-    res.status(200).send({servicos: allOrdersByUser, carros: car, enderecos: address});
+    res.status(200).send(allOrdersByUser);
   }catch (e) {
     res.status(500).send({ message: "some error occurred while fetching the order list!" + e })
+  }
+}
+
+const deleteOrder = async (req, res) => {
+  try {
+    const deleted = await Order.findByIdAndDelete(req.params);
+    console.log(deleted);
+    res.status(200).send({ message: "Order successfully deleted!" });
+  } catch (e) {
+    res.status(500).send({ message: "some error occurred while deleting a order!" + e })
+  }
+}
+
+const updateStatusOrder = async (req, res) => {
+  try {
+    console.log(req.body)
+    const updated = await Order.findByIdAndUpdate(req.params, req.body);
+    console.log(updated);
+    res.status(200).send({ message: "Order successfully updated!" });
+  } catch (e) {
+    res.status(500).send({ message: "some error occurred while updating a order!" + e })
   }
 }
 
@@ -49,4 +66,4 @@ const listAllOrders = async (req, res) => {
   }
 }
 
-export default { createOrder, listAllOrders, listOrderByUser }
+export default { createOrder, listAllOrders, listOrderByUser, deleteOrder, updateStatusOrder }

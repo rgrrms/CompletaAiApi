@@ -19,6 +19,11 @@ router.get('/allOrders', adminController.verifyJWTAdmin, orderController.listAll
 router.post('/loginAdmin', adminController.loginAdmin);
 router.post('/createAccountAdmin', adminController.createUserAdmin);
 
+router.delete('/deleteUser/:_id', adminController.verifyJWTAdmin, userController.deleteUser);
+router.delete('/deleteOrder/:_id', adminController.verifyJWTAdmin, orderController.deleteOrder);
+
+router.put('/updateOrder/:_id', adminController.verifyJWTAdmin, orderController.updateStatusOrder);
+
 router.get('/car/:idUser', carController.getCar);
 
 export default router;

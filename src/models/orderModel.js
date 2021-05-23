@@ -31,6 +31,9 @@ export default (mongoose) => {
     idCar: {
       type: String,
     },
+    idAddress: {
+      type: String,
+    },
     idAdmin: {
       type: String,
     }
