@@ -24,6 +24,6 @@ router.delete('/deleteOrder/:_id', adminController.verifyJWTAdmin, orderControll
 
 router.put('/updateOrder/:_id', adminController.verifyJWTAdmin, orderController.updateStatusOrder);
 
-router.get('/car/:idUser', carController.getCar);
+router.get('/car/:idUser', userController.verifyJWT,  carController.getCar);
 
 export default router;
